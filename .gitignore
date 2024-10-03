@@ -1,0 +1,20 @@
+# file to be excluded from git
+*.asv
+*.slxc
+*slprj*
+*.mkv
+*.mat
+*.zip
+*_uuid.mat
+~$*.*
+
+.git
+test
+imageToolbox.pptx
+makeRelease.m
+
+Tests/
+trash/
+RegularizationGallery/
+releases/
+toolboxReleaseFiles/
