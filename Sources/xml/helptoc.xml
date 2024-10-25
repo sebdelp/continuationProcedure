@@ -16,27 +16,55 @@
         <!-- A Getting Started Guide usually comes first -->
         <tocitem target="GettingStarted.html" image="HelpIcon.GETTING_STARTED">
             Getting Started with the BVP Continuation Procedure toolbox
+         
+            <tocitem target="toolboxPrinciples.html">Toolbox Principles
+                <tocitem target="bvpSolvers.html">Boundary Value Problem solvers
+                </tocitem>
+                <tocitem target="schedulingAlgorithm.html">Scheduling algorithm
+                </tocitem>
+                <tocitem target="workingWithHandles.html">Working with function handles
+                </tocitem>
+                 <tocitem target="doNotCheckParameterIsAFunction.html">Parameters and function name issue
+                </tocitem>
+                <tocitem target="initializationOfOCP.html" image="HelpIcon.USER_GUIDE">
+                    Initialization of OCP
+                </tocitem>
+            </tocitem>
+            <tocitem target="programmingDetails.html">Programming details
+                <tocitem target="displayInformation.html">Display information
+                </tocitem>
+                <tocitem target="plottingSolutions.html">Plotting solutions
+                </tocitem>
+                <tocitem target="doNotCheckParameterIsAFunction.html">Parameters and function name issue
+                </tocitem>
+            </tocitem>
         </tocitem>
-        <!-- User Guide comes next -->
-        <tocitem target="bvpSolvers.html">Boundary Value Problem solvers
-        </tocitem>
-        <tocitem target="continuationProcedure.html" 
-            image="HelpIcon.USER_GUIDE">Continuation procedure main file
-        </tocitem>
-        <tocitem target="schedulingAlgorithm.html">Scheduling algorithm
-        </tocitem>
-         <tocitem target="workingWithHandles.html">Working with function handles
-         </tocitem>
-         <tocitem target="displayInformation.html">Display information
-         </tocitem>
-        <tocitem target="plottingSolutions.html">Plotting solutions
-        </tocitem>
-        <tocitem target="doNotCheckParameterIsAFunction.html">Parameters and function name issue
-        </tocitem>
+        
+      
 
-       <tocitem target="FunctionList.html" image="HelpIcon.USER_GUIDE">
-            Function and object list
+        <tocitem target="functionList.html">Syntax 
+            
+            <tocitem target="bvp2p.html">bvp2p
+            </tocitem>
+            <tocitem target="bvp4or5c.html">bvp4or5c
+            </tocitem>
+            <tocitem target="continuationProcedure.html">continuationProcedure
+            </tocitem>
+            <tocitem target="ivp.html">ivp
+            </tocitem>
+            <tocitem target="linearScheduler.html">linearScheduler
+            </tocitem>
+            <tocitem target="logScheduler.html">logScheduler
+            </tocitem>
+            <tocitem target="OCPsteadyStateInitialization.html">OCPsteadyStateInitialization
+            </tocitem>
+            <tocitem target="plotHistory.html">plotHistory
+            </tocitem>
+
         </tocitem>
+        
+
+
     </tocitem>
 
 </toc>

@@ -1,6 +1,6 @@
 classdef bvp2p < abstractContProcedureProblem
     % Solve a boundary value problem usinbg bvptwp
-    properties (SetAccess=private,GetAccess=public)
+    properties (SetAccess=public,GetAccess=public)
         generateFodeFcn
         generateBCFcn
         fcnForBvpOptions

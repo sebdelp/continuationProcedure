@@ -15,6 +15,12 @@ end
 fdyn= obj.generateFodeFcn(params, fixedParams);
 bcfun=obj.generateBCFcn(params, fixedParams);
 
+if obj.catchMeshPointsError
+    % This is an undocumented way to catch warnings
+    originalWarningState=warning('query','MATLAB:bvp5c:RelTolNotMet');
+    warning('error','MATLAB:bvp5c:RelTolNotMet');
+end
+
 try 
     % Try to solve the problem using the provided parameters
     if isempty(bvpOptions)
@@ -26,9 +32,16 @@ try
     end
     obj.lastIterSuccess=true;
     obj.lastMessage='success';
+    if obj.catchMeshPointsError
+        warning(originalWarningState);
+    end
 catch Error
     obj.lastIterSuccess = false;
     obj.lastMessage = [Error.identifier ':' Error.message];
+    if obj.catchMeshPointsError
+        warning(originalWarningState);
+    end
+
     if ~contains(Error.identifier,'SingJac')
         % The error is not due to a solver issue
         rethrow(Error);

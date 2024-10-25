@@ -23,10 +23,8 @@ classdef ivp
             % Check bvp options
             if  ~isempty(options.odeOptions)
                 obj.odeOptions=options.odeOptions;
-                if ~isempty(options.fcnForBvpOptions)
-                    error('fcnForBvpOptions and bvpOptions cannot be specified at the same time');
-                end
-
+            else
+                obj.odeOptions=[];
             end
 
             % Store object values

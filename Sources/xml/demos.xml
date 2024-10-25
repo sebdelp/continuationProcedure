@@ -47,4 +47,14 @@
             <file>example/html/benchmarkSolver.html</file>
         </demoitem>
     </demosection>
+   <demosection>
+       <label>Initialization of BVP</label>
+         <demoitem>
+            <label>Initialization of an optimal control problem</label>
+            <type>other</type>
+            <source>benchmarkSolver</source>
+            <file>example/html/OCPinitialization.html</file>
+        </demoitem>
+    </demosection>
+
 </demos>

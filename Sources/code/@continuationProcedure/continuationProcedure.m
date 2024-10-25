@@ -51,6 +51,7 @@ classdef continuationProcedure < handle
                 options.postIterPrintFcn (1,1) function_handle = @defaultPostIterPrintFcn
                 options.userStopFcn  (1,1) function_handle     = @defaultUserStopFcn
                 options.plotFigFcn   (1,1) function_handle     = @emptyPlotFigFcn
+
                 % options.lambdaPlotScale (1,1) string = "lin"
                 %    options.doNotCheckParameterIsAFunction (1,1) logical = false
                 options.modifySolutionFcn (1,1) function_handle = @defaultModifySolutionFcn
@@ -97,7 +98,10 @@ classdef continuationProcedure < handle
             if ~obj.doNotCheckInitialSol
                 % Ensure that initial solution is feasible
                 fprintf('Checking initial solution feasability\n')
+                
+            
                 obj.ProblemSolver=obj.ProblemSolver.solveProblemContProcedure(obj.SolInit,obj.Scheduler.params,obj.Scheduler.fixedParams);
+                
                 if ~obj.ProblemSolver.lastIterSuccess
                     causeException = MException('continuationProcedure:SolInit','The provided initial solution is not feasible');
                     throw(causeException );
@@ -112,6 +116,10 @@ classdef continuationProcedure < handle
                 % Initial solution is not computed : use initial sol
                 fprintf('Initial solution is supposed feasible\n')
                 obj.sol=obj.SolInit;
+
+                % Precompute
+                obj.sol=obj.modifySolutionFcn(obj.sol,true,obj.Scheduler.params,obj.Scheduler.fixedParams);
+
             end
 
 

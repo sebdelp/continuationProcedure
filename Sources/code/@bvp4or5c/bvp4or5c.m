@@ -1,10 +1,11 @@
 classdef bvp4or5c < abstractContProcedureProblem
     % Solve a boundary value problem usinbg bvp4c or bvp5c
-    properties (SetAccess=private,GetAccess=public)
+    properties (SetAccess=public,GetAccess=public)
         generateFodeFcn
         generateBCFcn
         fcnForBvpOptions
         bvpOptions
+        catchMeshPointsError
     end
     properties (SetAccess=private, GetAccess=private)
         solverFcn
@@ -20,6 +21,7 @@ classdef bvp4or5c < abstractContProcedureProblem
                 generateBCFcn            function_handle
                 options.bvpOptions        struct = []
                 options.fcnForBvpOptions  = []
+                options.catchMeshPointsError (1,1) logical      = true
             end
 
             % Call abstractContProcedureProblem constructor
@@ -40,10 +42,11 @@ classdef bvp4or5c < abstractContProcedureProblem
                
                 obj.fcnForBvpOptions=options.fcnForBvpOptions;
             end
-
+            
             % Store object values
             obj.generateFodeFcn=generateFodeFcn;
             obj.generateBCFcn=generateBCFcn;
+            obj.catchMeshPointsError=options.catchMeshPointsError; % Force program to stop on error
 
 
             switch solver
