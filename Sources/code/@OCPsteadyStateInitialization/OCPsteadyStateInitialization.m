@@ -17,6 +17,12 @@ classdef OCPsteadyStateInitialization
         Tf=NaN
         T0=NaN
         nInit=100;
+        userStopFcn  (1,1) function_handle = @defaultUserStopFcn
+        preIterPrintFcn (1,1) function_handle = @defaultPreIterPrintFcn
+        postIterPrintFcn (1,1) function_handle = @defaultPostIterPrintFcn
+        plotFigFcn   (1,1) function_handle = @emptyPlotFigFcn
+        modifySolutionFcn (1,1) function_handle = @defaultModifySolutionFcn
+        storeSolutionInHistory (1,1) logical = false
     end
     properties (GetAccess=private,SetAccess=private)
         originalFode = [];
@@ -34,6 +40,14 @@ classdef OCPsteadyStateInitialization
                 options.SolInit     struct = [];
                 options.nInit (1,1) double = 10;
                 options.T0     (1,1) double = NaN;
+                options.preIterPrintFcn (1,1) function_handle  = @defaultPreIterPrintFcn
+                options.postIterPrintFcn (1,1) function_handle = @defaultPostIterPrintFcn
+                options.userStopFcn  (1,1) function_handle     = @defaultUserStopFcn
+                options.plotFigFcn   (1,1) function_handle     = @emptyPlotFigFcn
+                options.modifySolutionFcn (1,1) function_handle = @defaultModifySolutionFcn
+                options.storeSolutionInHistory (1,1) logical    = false
+ 
+
             end
             if size(xss,2)~=1
                 error('xss must be a column vector');
@@ -55,6 +69,7 @@ classdef OCPsteadyStateInitialization
             if isnan(options.T0)
                 options.T0=0;
             end
+            
             obj.xss=xss;
             obj.nState=length(xss);
             obj.Tf=Tf;
@@ -72,7 +87,7 @@ classdef OCPsteadyStateInitialization
             % Create new generateFodeFcn and new generateBCFcn
         end
 
-        function sol=run(obj)
+        function [sol,cont]=run(obj)
             % This function tries to solve the problem from a trivial
             % solution using a continuation procedure
 
@@ -120,7 +135,13 @@ classdef OCPsteadyStateInitialization
 
             % Compute a solution
             cont=continuationProcedure(problem,scheduler,solInit, ...
-                "doNotCheckInitialSol",true);
+                "doNotCheckInitialSol",true, ...
+                "userStopFcn",obj.userStopFcn,...
+                "preIterPrintFcn",obj.preIterPrintFcn,...
+                "postIterPrintFcn",obj.postIterPrintFcn,...
+                "plotFigFcn",obj.plotFigFcn,...
+                "modifySolutionFcn",obj.modifySolutionFcn,...
+                "storeSolutionInHistory",obj.storeSolutionInHistory);
             cont.run;
             sol=cont.sol;
 

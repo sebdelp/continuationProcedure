@@ -14,12 +14,15 @@ if isempty(dataPlot.history.lambda)
 else
     allX=1:length(dataPlot.history.lambda);
     allY=dataPlot.history.lambda;
-    iSuccess=dataPlot.history.iterSuccess;
+
+    % iterSuccess may be NaN, so use a comparison
+    iSuccess=dataPlot.history.iterSuccess==true;
+    iFail=dataPlot.history.iterSuccess==false;
     
     xLambdaSuccess=allX(iSuccess);
     yLambdaSuccess=dataPlot.history.lambda(iSuccess);
-    xLambdaFail=allX(~iSuccess);
-    yLambdaFail=dataPlot.history.lambda(~iSuccess);
+    xLambdaFail=allX(iFail);
+    yLambdaFail=dataPlot.history.lambda(iFail);
 end
 
 % if strcmpi(dataPlot.history.schedule,'log')

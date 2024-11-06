@@ -51,9 +51,6 @@ classdef continuationProcedure < handle
                 options.postIterPrintFcn (1,1) function_handle = @defaultPostIterPrintFcn
                 options.userStopFcn  (1,1) function_handle     = @defaultUserStopFcn
                 options.plotFigFcn   (1,1) function_handle     = @emptyPlotFigFcn
-
-                % options.lambdaPlotScale (1,1) string = "lin"
-                %    options.doNotCheckParameterIsAFunction (1,1) logical = false
                 options.modifySolutionFcn (1,1) function_handle = @defaultModifySolutionFcn
                 options.storeSolutionInHistory (1,1) logical    = false
 
@@ -81,24 +78,27 @@ classdef continuationProcedure < handle
 
         function obj=initialization(obj)
             % This function intialize the continuation procedure
-
+            if isempty(obj.iterativeDisplay)
+                obj.iterativeDisplay=iterativeDisplay();
+            end
+            
             % Start measuring time
             obj.startTime=tic;
-            % Initialize the history
+
+            % Initialize the history to empty values
             obj.history.lambda=[];
-            obj.history.iterSuccess=logical([]);
+            obj.history.iterSuccess=[];
             if obj.storeSolutionInHistory
                 obj.history.solution={};
             end
 
-            % Initialize the history
+            % Initialize the scheduler
             obj.Scheduler=obj.Scheduler.reset;
 
             % Eventually validate the initial solution
             if ~obj.doNotCheckInitialSol
                 % Ensure that initial solution is feasible
                 fprintf('Checking initial solution feasability\n')
-                
             
                 obj.ProblemSolver=obj.ProblemSolver.solveProblemContProcedure(obj.SolInit,obj.Scheduler.params,obj.Scheduler.fixedParams);
                 
@@ -112,6 +112,16 @@ classdef continuationProcedure < handle
 
                 % Modify solution if needed
                 obj.sol=obj.modifySolutionFcn(obj.sol,true,obj.Scheduler.params,obj.Scheduler.fixedParams);
+
+                % Update history
+                obj.history.lambda(end+1)=obj.Scheduler.lambda;
+                obj.history.iterSuccess(end+1)=obj.ProblemSolver.lastIterSuccess;
+                obj.history=obj.Scheduler.saveStateFields(obj.history);
+                obj.history.params=obj.Scheduler.params;
+
+                if obj.storeSolutionInHistory
+                    obj.history.solution{end+1}=obj.sol;
+                end
             else
                 % Initial solution is not computed : use initial sol
                 fprintf('Initial solution is supposed feasible\n')
@@ -120,6 +130,13 @@ classdef continuationProcedure < handle
                 % Precompute
                 obj.sol=obj.modifySolutionFcn(obj.sol,true,obj.Scheduler.params,obj.Scheduler.fixedParams);
 
+                obj.history.lambda(end+1)=obj.Scheduler.lambda;
+                obj.history.iterSuccess(end+1)=NaN; % Assumed
+                obj.history=obj.Scheduler.saveStateFields(obj.history);
+                obj.history.params=obj.Scheduler.params;
+                if obj.storeSolutionInHistory
+                    obj.history.solution{end+1}=obj.sol;
+                end
             end
 
 
@@ -131,11 +148,14 @@ classdef continuationProcedure < handle
 
                 obj.status=1; % Init
                 obj.dataplot.history=obj.history;
-                % obj.dataplot.lambdaPlotScale=obj.lambdaPlotScale;
                 obj.iterativeDisplay.newIteration;
                 obj.dataplot=obj.plotFigFcn(obj.dataplot,obj.status,obj.iterativeDisplay,obj.sol,obj.Scheduler.params,obj.Scheduler.fixedParams,sprintf('%02i - \\lambda=%.2e',0,obj.Scheduler.lambda));
                 obj.status=2; % Running
             end
+
+            % Take a step assuming that the first solution is a sucess
+            obj.Scheduler.updateIterResult(true);
+
 
             obj.CPUcomputationTime=0;
             obj.userStopRequest=false;
@@ -178,6 +198,8 @@ classdef continuationProcedure < handle
             % Update history
             obj.history.lambda(end+1)=obj.Scheduler.lambda;
             obj.history.iterSuccess(end+1)=obj.ProblemSolver.lastIterSuccess;
+            obj.history.params(end+1)=obj.Scheduler.params;
+
             obj.history=obj.Scheduler.saveStateFields(obj.history);
             if obj.storeSolutionInHistory
                 obj.history.solution{end+1}=obj.sol;
