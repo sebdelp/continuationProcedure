@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <demos>
-    <name>BVP Continuation Procedure</name>
+    <name>Continuation Procedure</name>
     <type>toolbox</type>
     <icon>HelpIcon.DEMOS</icon>
-    <description>A few example to illustrate basic usage of the BVP Continuation Procedure toolbox.</description>
+    <description>A few example to illustrate basic usage of the Continuation Procedure toolbox.</description>
     <website><a href="https://www.uphf.fr/LAMIH">Link to the LAMIH UMR 8201 website</a></website>
     
     <demosection>
@@ -46,6 +46,13 @@
             <source>benchmarkSolver</source>
             <file>example/html/benchmarkSolver.html</file>
         </demoitem>
+        <demoitem>
+            <label>Using singular control regularization and exterior penalty on Goddard's problem</label>
+            <type>other</type>
+            <source>goddard</source>
+            <file>example/html/goddard.html</file>
+        </demoitem>
+
     </demosection>
    <demosection>
        <label>Initialization of BVP</label>

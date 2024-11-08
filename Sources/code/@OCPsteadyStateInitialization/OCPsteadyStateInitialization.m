@@ -23,6 +23,14 @@ classdef OCPsteadyStateInitialization
         plotFigFcn   (1,1) function_handle = @emptyPlotFigFcn
         modifySolutionFcn (1,1) function_handle = @defaultModifySolutionFcn
         storeSolutionInHistory (1,1) logical = false
+
+        % Schuduler parameters
+         initialDelta                (1,1) double  {mustBePositive(initialDelta), mustBeLessThanOrEqual(initialDelta,1)}  = 0.1
+         deltaMin                    (1,1) double  {mustBeNonnegative(deltaMin)} = 0
+         beta                        (1,1) double  {mustBeGreaterThanOrEqual(beta,1)} = 1.05
+         lambdaMin                   (1,1) double  {mustBeNonnegative(lambdaMin),mustBeLessThan(lambdaMin,1)} = 0
+         doNotCheckParameterIsAFunction  (1,1) logical = false;
+
     end
     properties (GetAccess=private,SetAccess=private)
         originalFode = [];
@@ -47,6 +55,12 @@ classdef OCPsteadyStateInitialization
                 options.modifySolutionFcn (1,1) function_handle = @defaultModifySolutionFcn
                 options.storeSolutionInHistory (1,1) logical    = false
  
+                % Scheduler optional parameters
+                options.initialDelta                (1,1) double  {mustBePositive(options.initialDelta), mustBeLessThanOrEqual(options.initialDelta,1)}  = 0.1
+                options.deltaMin                    (1,1) double  {mustBeNonnegative(options.deltaMin)} = 0
+                options.beta                        (1,1) double  {mustBeGreaterThanOrEqual(options.beta,1)} = 1.05
+                options.lambdaMin                   (1,1) double  {mustBeNonnegative(options.lambdaMin),mustBeLessThan(options.lambdaMin,1)} = 0
+                options.doNotCheckParameterIsAFunction  (1,1) logical = false;
 
             end
             if size(xss,2)~=1
@@ -117,9 +131,8 @@ classdef OCPsteadyStateInitialization
             
             % 4) Prepare a scheduler
             scheduler=linearScheduler(paramStart,paramEnd, fixedParams=obj.fixedParams,...
-                initialDelta=0.1,beta=1.2,deltaMin=1e-10,lambdaMin=1e-10);
-
-          
+                initialDelta=obj.initialDelta,beta=obj.beta,deltaMin=obj.deltaMin,...
+                lambdaMin=obj.lambdaMin,doNotCheckParameterIsAFunction=obj.doNotCheckParameterIsAFunction);
             
             % Initial solution
             if isempty(obj.SolInit)

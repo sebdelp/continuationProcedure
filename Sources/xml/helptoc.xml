@@ -15,7 +15,7 @@
         <!-- matlabroot/toolbox/matlab/icons -->
         <!-- A Getting Started Guide usually comes first -->
         <tocitem target="GettingStarted.html" image="HelpIcon.GETTING_STARTED">
-            Getting Started with the BVP Continuation Procedure toolbox
+            Getting Started with the Continuation Procedure toolbox
          
             <tocitem target="toolboxPrinciples.html">Toolbox Principles
                 <tocitem target="bvpSolvers.html">Boundary Value Problem solvers

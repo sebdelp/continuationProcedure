@@ -195,6 +195,9 @@ classdef continuationProcedure < handle
             obj.wallTime=obj.wallTime+toc(tStart);
             % Now we know if this iteration was or not a success
 
+            % Modify solution if needed
+            obj.sol=obj.modifySolutionFcn(obj.sol,obj.ProblemSolver.lastIterSuccess,obj.Scheduler.params,obj.Scheduler.fixedParams);
+
             % Update history
             obj.history.lambda(end+1)=obj.Scheduler.lambda;
             obj.history.iterSuccess(end+1)=obj.ProblemSolver.lastIterSuccess;
@@ -204,7 +207,8 @@ classdef continuationProcedure < handle
             if obj.storeSolutionInHistory
                 obj.history.solution{end+1}=obj.sol;
             end
-
+        
+            
             % Post iter display
             clear algorithmState;
             % algorithmState.delta=options.delta;
@@ -217,12 +221,10 @@ classdef continuationProcedure < handle
             algorithmState.iterSuccess=obj.ProblemSolver.lastIterSuccess;
             algorithmState=obj.Scheduler.saveStateFields(algorithmState);
             algorithmState.schedulerStateStr=obj.Scheduler.schedulerStateStr();
-
+            
+            
+            % Display info to the user
             obj.postIterPrintFcn(algorithmState,obj.Scheduler.params, obj.Scheduler.fixedParams,obj.ProblemSolver.lastMessage);
-
-
-            % Modify solution if needed
-            obj.sol=obj.modifySolutionFcn(obj.sol,obj.ProblemSolver.lastIterSuccess,obj.Scheduler.params,obj.Scheduler.fixedParams);
 
             % User stop function
             obj.userStopRequest=obj.userStopFcn(algorithmState,obj.Scheduler.params, obj.Scheduler.fixedParams,obj.ProblemSolver.lastMessage);
