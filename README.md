@@ -1,4 +1,17 @@
 # Continuation Procedure Toolbox 
+# Installation & update
+## Instalation
+The prefered method consists in using Matlab Addon Explorer available from the Add-Ons/Get Add-Ons menu.
+Search for "continuation procedure". Select the toolbox and click on the "Add" button.
+![Matlab Addon Explorer](images\addonExplorer.png)
+
+Alternatively, the toolbox file "ContinuationProcedure.mltbx" can be downloaded. The from Matlab, double click on this file to install the toolbox.
+
+## Update
+Updates are pushed by Mathworks servers. When an update is available, the "bell" icon will becomes red. 
+It is located next to your username in the upper right corner of Matlab main menu.
+![update](images\update.png)
+
 # Introduction 
 
 This toolbox is designed to solve a problem of the form $P(x,\phi)$ where $x$ is the unknown and $\phi$ the parameters vector using a Continuation Procedure. 
@@ -16,13 +29,56 @@ It also offers different schedulers to automatically vary the $\phi$ values and 
 The best way to install this toolbox is to use the get add-on menu. Search for "continuationProcedure". The installation is fully automatic.
 
 #How to use
-The toolbox provides several examples to implement the continuation procedure. It requires the following steps:
-+ Define parameters values
+The toolbox provides several examples to implement the continuation procedure.
+It requires the following steps:
++ Define parameters values starting & final values
   ```
   paramStart.val1=1;
   paramStart.val2=-50;
   paramEnd.val1=1;
-  paramEnd.val2=-50;
-  
+  paramEnd.val2=-50;  
   ```
+
 + Define a scheduler object
+    ```
+    scheduler=linScheduler(paramStart,paramEnd);
+    ```
++ Define the BVP functions
+To solve a BVP problem, the user simply needs to write 2 functions for his problem. These functions can depend on some or all of the parameters defined in paramStart
+The first function is the BVP Dynamics:
+    ```
+    function dydt=f(t,y,val1,val2)
+        dydt=....;
+    end
+    ```
+The second one is the boundary condition
+    ```
+    function res=bc(ya,yb,val1,val2)
+        res=...;
+    end
+    ```
+Finally, we write the function that allows interfacing the user defined function with the continuation procedure toolbox:
+    ```
+    function fode=generateFodeFcn(continuationParams,fixedParams)
+        retrieveContinuationParameters({continuationParams,fixedParams});
+        % Build a handle to the BVP dynamics
+        fode=@(t,y) f(t,y,val1,val2);
+    end
+
+    function bcond=generateBCFcn(continuationParams,fixedParams)
+        retrieveContinuationParameters({continuationParams,fixedParams});
+        % Build a handle to the boundary condition function
+        bcond=@(ya,yb) bc(ya,yb,val1,val2);
+    end
+    ```
++ Define a bvp4or5c problem
+    ```
+        problem=bvp4or5c("bvp5c",@generateFodeFcn,@generateBCFcn);
+    ```
+
++ Define and execute the continuation procedure
+    ```
+        cont=continuationProcedure(problem,scheduler,solInit);
+        cont.run;
+        sol=cont.sol;
+    ```
