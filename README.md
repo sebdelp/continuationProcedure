@@ -3,14 +3,14 @@
 ## Instalation
 The prefered method consists in using Matlab Addon Explorer available from the Add-Ons/Get Add-Ons menu.
 Search for "continuation procedure". Select the toolbox and click on the "Add" button.
-![Matlab Addon Explorer](images\addonExplorer.png)
+![Matlab Addon Explorer](images/addonExplorer.png)
 
 Alternatively, the toolbox file "ContinuationProcedure.mltbx" can be downloaded. The from Matlab, double click on this file to install the toolbox.
 
 ## Update
 Updates are pushed by Mathworks servers. When an update is available, the "bell" icon will becomes red. 
 It is located next to your username in the upper right corner of Matlab main menu.
-![update](images\update.png)
+![update](images/update.png)
 
 # Introduction 
 
