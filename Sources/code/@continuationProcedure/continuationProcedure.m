@@ -26,7 +26,7 @@ classdef continuationProcedure < handle
         noIter=1;
         CPUcomputationTime=0;
         userStopRequest=false;
-        wallTime double = 0
+        wallTime double = 0;
         result = [];
     end
     properties (Access=private)

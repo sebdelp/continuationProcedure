@@ -23,13 +23,16 @@ end
 
 % Try to solve the problem using the provided parameters
 try
-if isempty(bvpOptions)
-    % No options
-    sol=obj.solverFcn(fdyn,bcfun,sol);
-else
-    % With options
-    sol=obj.solverFcn(fdyn,bcfun,sol,bvpOptions);
-end
+    if isempty(bvpOptions)
+        % No options
+        sol=obj.solverFcn(fdyn,bcfun,sol);
+    else
+        % With options
+        sol=obj.solverFcn(fdyn,bcfun,sol,bvpOptions);
+    end
+    if ~obj.solValidationFcn(sol,params,fixedParams)
+        error('Solution is discarded by the validation function');
+    end
 catch Error
     % Restaure warning state
     if obj.catchMeshPointsError

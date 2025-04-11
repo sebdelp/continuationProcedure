@@ -5,12 +5,13 @@ classdef abstractContProcedureProblem
         lastIterSuccess
         lastMessage=[];
         % fixedParams
-        
     end
     properties (SetAccess=protected,GetAccess=private)
         lastSolAvailable=false;
     end
-    methods 
+ 
+    
+    methods (Access=public)
         % Solve a problem for a given initial solution and parameters
         % values and manage the continuation procedure fields
         % (lastSolution, lastIterSuccess, lastMessage)
@@ -19,20 +20,14 @@ classdef abstractContProcedureProblem
     end
 
     methods
-        function obj=abstractContProcedureProblem(options)
+        function obj=abstractContProcedureProblem()
             % arguments
-            %     % options.fixedParams struct = struct([])
-            %    % options.doNotCheckParameterIsAFunction (1,1) logical = false;
+            %     fcnSolValidation (1,1) function_handle 
             % end
-            % obj.fixedParams=options.fixedParams;
+            % obj.fcnSolValidation=fcnSolValidation;
          end
         
-        %  function checkProblem(obj,sol)
-        %     checkFields(obj,paramExemple,obj.fixedParams,);
-        %     if ~options.doNotCheckParameterIsAFunction
-        %         checkParametersAreNotAlsoFunctions(obj,{paramExemple,options.fixedParams});
-        %     end
-        % end
+       
         function lastSol=get.lastSolution(obj)
             if obj.lastSolAvailable
                 lastSol=obj.lastSolution;

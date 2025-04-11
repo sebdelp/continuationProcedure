@@ -23,5 +23,8 @@ else
     % With options
     sol=bvptwp(fdyn,bcfun,sol,bvpOptions);
 end
+if ~obj.solValidationFcn(sol,params,fixedParams)
+    error('Solution is discarded by the validation function');
+end
 
 end

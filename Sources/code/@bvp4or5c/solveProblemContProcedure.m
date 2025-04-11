@@ -25,13 +25,18 @@ try
     % Try to solve the problem using the provided parameters
     if isempty(bvpOptions)
         % No options
-        obj.lastSolution=obj.solverFcn(fdyn,bcfun,sol);
+        sol=obj.solverFcn(fdyn,bcfun,sol);
     else
         % With options
-        obj.lastSolution=obj.solverFcn(fdyn,bcfun,sol,bvpOptions);
+        sol=obj.solverFcn(fdyn,bcfun,sol,bvpOptions);
     end
-    obj.lastIterSuccess=true;
-    obj.lastMessage='success';
+    if ~obj.solValidationFcn(sol,params,fixedParams)
+        error('Solution is discarded by the validation function');
+    else
+        obj.lastIterSuccess=true;
+        obj.lastMessage='success';
+        obj.lastSolution=sol;
+    end
     if obj.catchMeshPointsError
         warning(originalWarningState);
     end
@@ -42,7 +47,7 @@ catch Error
         warning(originalWarningState);
     end
 
-    if ~contains(Error.identifier,'SingJac')
+    if ~contains(Error.identifier,'SingJac') && ~strcmp(Error.message,'Solution is discarded by the validation function')
         % The error is not due to a solver issue
         rethrow(Error);
     end

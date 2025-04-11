@@ -1,12 +1,16 @@
 classdef bvp2p < abstractContProcedureProblem
     % Solve a boundary value problem usinbg bvptwp
     properties (SetAccess=public,GetAccess=public)
-        generateFodeFcn
-        generateBCFcn
+        
         fcnForBvpOptions
         bvpOptions
+        solValidationFcn
+
     end
-    
+    properties (SetAccess= {?OCPsteadyStateInitialization}, GetAccess=public)
+        generateFodeFcn
+        generateBCFcn
+    end
     methods
 
         function obj=bvp2p(generateFodeFcn,generateBCFcn,options)
@@ -15,6 +19,8 @@ classdef bvp2p < abstractContProcedureProblem
                 generateBCFcn            function_handle
                 options.bvpOptions        struct = []
                 options.fcnForBvpOptions  = []
+                options.solValidationFcn (1,1) function_handle = @defaultSolValidationFcn
+
             end
 
             % Call abstractContProcedureProblem constructor
@@ -39,15 +45,18 @@ classdef bvp2p < abstractContProcedureProblem
             % Store object values
             obj.generateFodeFcn=generateFodeFcn;
             obj.generateBCFcn=generateBCFcn;
+            obj.fcnForBvpOptions=options.fcnForBvpOptions;
+            obj.solValidationFcn=options.solValidationFcn;
+
         end
       
 
     end
-     methods
+    methods (Access=public)
         % Solve a problem for a given initial solution and parameters
         % values and manage the continuation procedure fields
         % (lastSolution, lastIterSuccess, lastMessage)
-        obj=solveProblemContProcedure(obj,sol,params,fixedParams)
+        obj=solveProblemConProcedure(obj,sol,params,fixedParams)
         
         % Solve a problem for the user
         % Do not update any fields
