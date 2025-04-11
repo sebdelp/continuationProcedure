@@ -52,7 +52,12 @@
             <source>goddard</source>
             <file>example/html/goddard.html</file>
         </demoitem>
-
+     <demoitem>
+            <label>State constrained optimal control with a log-barrier penalty</label>
+            <type>other</type>
+            <source>interiorBarrier</source>
+            <file>example/html/interiorBarrier.html</file>
+        </demoitem>
     </demosection>
    <demosection>
        <label>Initialization of BVP</label>

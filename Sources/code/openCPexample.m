@@ -1,7 +1,7 @@
 function openCPexample(no)
 % This function open Continuation Procedure Toolbox examples
 exampleList={"toyProblem","stateConstraint","user_regularizationByPerturbation",...
-    "regularization_GRCO","user_OCPinitialization","goddard","benchmarkSolver","interioBarrier"};
+    "regularization_GRCO","user_OCPinitialization","goddard","benchmarkSolver","interiorBarrier"};
 if no>length(exampleList)
     error('Invalid example number. Valid numbers are 1..%i',length(exampleList));
 end
