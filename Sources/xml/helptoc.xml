@@ -16,7 +16,6 @@
         <!-- A Getting Started Guide usually comes first -->
         <tocitem target="GettingStarted.html" image="HelpIcon.GETTING_STARTED">
             Getting Started with the Continuation Procedure toolbox
-         
             <tocitem target="toolboxPrinciples.html">Toolbox Principles
                 <tocitem target="bvpSolvers.html">Boundary Value Problem solvers
                 </tocitem>
@@ -30,6 +29,7 @@
                     Initialization of OCP
                 </tocitem>
             </tocitem>
+            
             <tocitem target="programmingDetails.html">Programming details
                 <tocitem target="displayInformation.html">Display information
                 </tocitem>
@@ -50,6 +50,8 @@
             </tocitem>
             <tocitem target="continuationProcedure.html">continuationProcedure
             </tocitem>
+            <tocitem target="createStructureFromVariable.html">createStructureFromVariable
+            </tocitem>
             <tocitem target="ivp.html">ivp
             </tocitem>
             <tocitem target="linearScheduler.html">linearScheduler
@@ -60,7 +62,10 @@
             </tocitem>
             <tocitem target="plotHistory.html">plotHistory
             </tocitem>
+            <tocitem target="retrieveContinuationParameters.html">retrieveContinuationParameters
+            </tocitem>
 
+             
         </tocitem>
         
 

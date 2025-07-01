@@ -3,7 +3,7 @@
     <name>Continuation Procedure</name>
     <type>toolbox</type>
     <icon>HelpIcon.DEMOS</icon>
-    <description>A few example to illustrate basic usage of the Continuation Procedure toolbox.</description>
+    <description>A few example to illustrate basic usage of the Continuation Procedure toolbox by me&&&&.</description>
     <website><a href="https://www.uphf.fr/LAMIH">Link to the LAMIH UMR 8201 website</a></website>
     
     <demosection>
@@ -13,6 +13,7 @@
             <type>other</type>
             <source>toyProblem</source>
             <file>example/html/toyProblem.html</file>
+
         </demoitem>
     </demosection>
     
@@ -74,7 +75,12 @@
             <source>singularTimeOptimalControlProblem</source>
             <file>example/html/singularTimeOptimalControlProblem.html</file>
         </demoitem>
-
+       <demoitem>
+            <label>Minimum time optimal control</label>
+            <type>other</type>
+            <source>singularTimeOptimalControlProblem</source>
+            <file>example/html/singularTimeOptimalControlProblem.html</file>
+       </demoitem>
 </demosection>
 
 </demos>

@@ -23,6 +23,8 @@ classdef OCPsteadyStateInitialization
         plotFigFcn   (1,1) function_handle = @emptyPlotFigFcn
         modifySolutionFcn (1,1) function_handle = @defaultModifySolutionFcn
         storeSolutionInHistory (1,1) logical = false
+        freeFinalTimeProblem (1,1) logical = false
+        Tss (1,1) double = 1
 
         % Schuduler parameters
          initialDelta                (1,1) double  {mustBePositive(initialDelta), mustBeLessThanOrEqual(initialDelta,1)}  = 0.1
@@ -48,13 +50,15 @@ classdef OCPsteadyStateInitialization
                 options.SolInit     struct = [];
                 options.nInit (1,1) double = 10;
                 options.T0     (1,1) double = NaN;
-                options.preIterPrintFcn (1,1) function_handle  = @defaultPreIterPrintFcn
-                options.postIterPrintFcn (1,1) function_handle = @defaultPostIterPrintFcn
-                options.userStopFcn  (1,1) function_handle     = @defaultUserStopFcn
-                options.plotFigFcn   (1,1) function_handle     = @emptyPlotFigFcn
+                options.preIterPrintFcn (1,1) function_handle   = @defaultPreIterPrintFcn
+                options.postIterPrintFcn (1,1) function_handle  = @defaultPostIterPrintFcn
+                options.userStopFcn  (1,1) function_handle      = @defaultUserStopFcn
+                options.plotFigFcn   (1,1) function_handle      = @emptyPlotFigFcn
                 options.modifySolutionFcn (1,1) function_handle = @defaultModifySolutionFcn
                 options.storeSolutionInHistory (1,1) logical    = false
- 
+                options.freeFinalTimeProblem (1,1) logical      = false
+                options.Tss (1,1) double   {mustBePositive(options.Tss)}         = 1
+
                 % Scheduler optional parameters
                 options.initialDelta                (1,1) double  {mustBePositive(options.initialDelta), mustBeLessThanOrEqual(options.initialDelta,1)}  = 0.1
                 options.deltaMin                    (1,1) double  {mustBeNonnegative(options.deltaMin)} = 0
@@ -66,7 +70,7 @@ classdef OCPsteadyStateInitialization
             if size(xss,2)~=1
                 error('xss must be a column vector');
             end
-          
+
 
             % An initial solution was provided
             % => check consistency of T0 & Tf
@@ -87,6 +91,26 @@ classdef OCPsteadyStateInitialization
             obj.xss=xss;
             obj.nState=length(xss);
             obj.Tf=Tf;
+
+          
+            if options.freeFinalTimeProblem 
+                % Tests specific to free final Time problem
+                if options.T0~=0
+                    error('OCPsteadyStateInitialization: T0 must be 0 for a free final time problem (currently T0=%.2e)',options.T0);
+                end
+                if isnan(obj.Tf)
+                    obj.Tf=1;
+                end
+                if obj.Tf~=1
+                    error('OCPsteadyStateInitialization: Tf must be 1 for a free final time problem (currently Tf=%.2e)',obj.Tf);
+                end
+            else
+                if isnan(obj.Tf)
+                    error('OCPsteadyStateInitialization: You must provide the value of Tf')
+                end
+
+            end
+
             % Store fields
             fields = fieldnames(options);
             for i=1:length(fields)
@@ -98,7 +122,6 @@ classdef OCPsteadyStateInitialization
             obj.originalFode=problem.generateFodeFcn(options.targetParams,options.fixedParams);
             obj.originalBC=problem.generateBCFcn(options.targetParams,options.fixedParams);
 
-            % Create new generateFodeFcn and new generateBCFcn
         end
 
         function [sol,cont]=run(obj)
@@ -116,7 +139,7 @@ classdef OCPsteadyStateInitialization
             else
                 paramStart=obj.targetParams;paramEnd=obj.targetParams;
                 paramStart.(schedulingParamName) = 0;
-                paramEnd.(schedulingParamName) = 1;
+                paramEnd.(schedulingParamName)   = 1;
             end
 
             % 3) Prepare continuation procedure problem
@@ -125,9 +148,13 @@ classdef OCPsteadyStateInitialization
             else
                 yss=[zeros(size(obj.xss));obj.xss];
             end
+            if obj.freeFinalTimeProblem
+                yss=[yss;obj.Tss];
+            end
+
             problem=obj.problem;
-            problem.generateFodeFcn = @(continuationParams,fixedParams) obj.generateFodeFcn(continuationParams,fixedParams,obj.originalFode,schedulingParamName,obj.xss,obj.stateFirst,obj.nState); 
-            problem.generateBCFcn   = @(continuationParams,fixedParams) obj.generateBCFcn(continuationParams,fixedParams,obj.originalBC,schedulingParamName,obj.xss,obj.stateFirst,obj.nState); 
+            problem.generateFodeFcn = @(continuationParams,fixedParams) obj.generateFodeFcn(continuationParams,fixedParams,obj.originalFode,schedulingParamName,obj.xss,obj.stateFirst,obj.nState,obj.freeFinalTimeProblem); 
+            problem.generateBCFcn   = @(continuationParams,fixedParams) obj.generateBCFcn(continuationParams,fixedParams,obj.originalBC,schedulingParamName,obj.xss,obj.stateFirst,obj.nState,obj.freeFinalTimeProblem); 
             
             % 4) Prepare a scheduler
             scheduler=linearScheduler(paramStart,paramEnd, fixedParams=obj.fixedParams,...
@@ -141,6 +168,11 @@ classdef OCPsteadyStateInitialization
                     solInit.y=repmat([obj.xss;zeros(obj.nState,1)],[1 obj.nInit]);
                 else
                     solInit.y=repmat([zeros(obj.nState,1);obj.xss],[1 obj.nInit]);
+                end
+                if  obj.freeFinalTimeProblem
+                    % Add initial time to the last component of the
+                    % extended vector
+                    solInit.y=[solInit.y;zeros(1,obj.nInit)+yss(end)];
                 end
             else
                 solInit=obj.SolInit;
@@ -184,7 +216,7 @@ classdef OCPsteadyStateInitialization
                 ended=~strcmp(schedulingParamName,fields);
             end
         end
-        function fcn=generateFodeFcn (obj,continuationParams,fixedParams,originalFode,schedulingParamName,xss,stateFirst,nState)
+        function fcn=generateFodeFcn(obj,continuationParams,fixedParams,originalFode,schedulingParamName,xss,stateFirst,nState, freeFinalTimeProblem)
             % This function generates the BVP dynamics all along the
             % continuation procedure : dydt= [f*kappa;-dH/dx*kappa - 2*(1-kappa)*(x-xss)]
             % In Parameters
@@ -195,22 +227,38 @@ classdef OCPsteadyStateInitialization
             % + xss : target state value
             % + stateFirst if true y=[x,p] else y=[p,x]
             % + nState : number of state : length(y)= 2*nState
-            % 
+            % + freeFinalTimeProblem : true when the problem is with freeFinalTimeProblem  (last component of y is T)
+            %
             % Out Parameters
             % + fcn: the BVP dynamics to be used wihtin the cont proc
             retrieveContinuationParameters({continuationParams,fixedParams});
 
-            if stateFirst
-                % Add the dynamics on the costate dynamics
-                fcn= @(t,y) originalFode(t,y) * continuationParams.(schedulingParamName) + ...
-                    (1-continuationParams.(schedulingParamName))* [zeros(nState,1);-2*(y(1:nState)-xss) ];
+            if freeFinalTimeProblem
+                % Orignal dynamics is multiplied by T 
+                % Final "time" state with zero dynamics is needed at the end
+                if stateFirst
+                    fcn= @(t,y) originalFode(t,y) * continuationParams.(schedulingParamName) + ...
+                        (1-continuationParams.(schedulingParamName))* y(end)*[zeros(nState,1);-2*(y(1:nState)-xss); 
+                        0];
+                else
+                    fcn= @(t,y) originalFode(t,y) * continuationParams.(schedulingParamName) + ...
+                        (1-continuationParams.(schedulingParamName))* y(end)*[-2*(y(nState+1:end-1)-xss);zeros(nState,1);
+                        0];
+                end
             else
-                fcn= @(t,y) originalFode(t,y) * continuationParams.(schedulingParamName) + ...
-                    (1-continuationParams.(schedulingParamName))* [-2*(y(nState+1:end)-xss);zeros(nState,1) ];
+                % Classical problem
+                if stateFirst
+                    % Add the dynamics on the costate dynamics
+                    fcn= @(t,y) originalFode(t,y) * continuationParams.(schedulingParamName) + ...
+                        (1-continuationParams.(schedulingParamName))* [zeros(nState,1);-2*(y(1:nState)-xss) ];
+                else
+                    fcn= @(t,y) originalFode(t,y) * continuationParams.(schedulingParamName) + ...
+                        (1-continuationParams.(schedulingParamName))* [-2*(y(nState+1:end)-xss);zeros(nState,1) ];
+                end
             end
         end
 
-        function fcn=generateBCFcn (obj,continuationParams,fixedParams,originalBC,schedulingParamName,xss,stateFirst,nState)
+        function fcn=generateBCFcn (obj,continuationParams,fixedParams,originalBC,schedulingParamName,xss,stateFirst,nState,freeFinalTimeProblem)
             % This function generates the BVP dynamics all along the
             % continuation procedure : dydt= [f*kappa;-dH/dx*kappa - 2*(1-kappa)*(x-xss)]
             % In Parameters
@@ -221,18 +269,33 @@ classdef OCPsteadyStateInitialization
             % + xss : target state
             % + stateFirst if true y=[x,p] else y=[p,x]
             % + nState : number of state : length(y)= 2*nState
+            % + freeFinalTimeProblem : true when the problem is with freeFinalTimeProblem  (last component of y is T)
             % 
             % Out Parameters
             % + fcn: the BVP dynamics to be used wihtin the cont proc
 
             retrieveContinuationParameters({continuationParams,fixedParams});
 
-            if stateFirst
-            fcn=@(ya,yb)  originalBC(ya,yb)*continuationParams.(schedulingParamName) + ...
-                    (1-continuationParams.(schedulingParamName))*[ya(1:nState)-xss;yb(1:nState)-xss];
+            if freeFinalTimeProblem
+                % Additionnal boundary condition :Hamiltonian + \dh/dtf should be 0
+                if stateFirst
+                    fcn=@(ya,yb)  originalBC(ya,yb)*continuationParams.(schedulingParamName) + ...
+                        (1-continuationParams.(schedulingParamName))*[ya(1:nState)-xss;yb(1:nState)-xss;
+                        (yb(1:nState)-xss)'*(yb(1:nState)-xss)+2*(yb(end)-obj.Tss)];
+                else
+                    fcn=@(ya,yb)  originalBC(ya,yb)*continuationParams.(schedulingParamName) + ...
+                        (1-continuationParams.(schedulingParamName))*[ya(nState+1:end)-xss;yb(nState+1:end)-xss;
+                        (yb(nState+1:end)-xss)'*(yb(nState+1:end)-xss)+2*(yb(end)-obj.Tss)];
+                end
             else
-            fcn=@(ya,yb)  originalBC(ya,yb)*continuationParams.(schedulingParamName) + ...
-                    (1-continuationParams.(schedulingParamName))*[ya(nState+1:end)-xss;yb(nState+1:end)-xss];
+                % Classical problem
+                if stateFirst
+                    fcn=@(ya,yb)  originalBC(ya,yb)*continuationParams.(schedulingParamName) + ...
+                        (1-continuationParams.(schedulingParamName))*[ya(1:nState)-xss;yb(1:nState)-xss];
+                else
+                    fcn=@(ya,yb)  originalBC(ya,yb)*continuationParams.(schedulingParamName) + ...
+                        (1-continuationParams.(schedulingParamName))*[ya(nState+1:end)-xss;yb(nState+1:end)-xss];
+                end
             end
         end
     end
