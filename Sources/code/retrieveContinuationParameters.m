@@ -2,7 +2,7 @@ function retrieveContinuationParameters(params)
 % This function extract all the params fields into the caller workspace
 % Author : S. Delprat, INSA Hauts-de-France, LAMIH UMR CNRS 8201
 if ~iscell(params)
-    param={params};
+    params={params};
 end
 
 for noCell=1:length(params)
